@@ -36,11 +36,9 @@ export async function POST(
   }
 
   try {
-    const eventName = `job/${name}` as keyof Events
-    const result = await inngest.send({
-      name: eventName,
-      data: jobParams as Events[typeof eventName],
-    })
+    const eventName = `job/${name}`
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await inngest.send({name: eventName, data: jobParams} as any)
 
     return NextResponse.json(
       {

@@ -4,12 +4,7 @@ const CANVA_API_KEY = process.env.CANVA_API_KEY
 const CANVA_BRAND_KIT_ID = process.env.CANVA_BRAND_KIT_ID
 const CANVA_BASE_URL = 'https://api.canva.com/rest/v1'
 
-interface CanvaHeaders {
-  Authorization: string
-  'Content-Type': string
-}
-
-function getHeaders(): CanvaHeaders {
+function getHeaders(): Record<string, string> {
   if (!CANVA_API_KEY) {
     throw new Error('CANVA_API_KEY is required')
   }

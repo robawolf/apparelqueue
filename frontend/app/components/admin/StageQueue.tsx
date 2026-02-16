@@ -26,17 +26,18 @@ export interface Idea {
   printfulExternalId?: string | null
   shopifyProductId?: string | null
   shopifyProductUrl?: string | null
-  publishedAt?: string | null
+  publishedAt?: string | Date | null
   aiModel?: string | null
   stage: string
   status: string
   createdAt: Date
-  revisionHistory?: Array<{stage: string; type: 'forward' | 'revision'; notes: string; timestamp: string}>
-  category?: {name: string} | null
-  phraseBucket?: {name: string} | null
-  designBucket?: {name: string} | null
-  productBucket?: {name: string} | null
-  listingBucket?: {name: string} | null
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  revisionHistory?: any
+  category?: {name: string; [key: string]: unknown} | null
+  phraseBucket?: {name: string; [key: string]: unknown} | null
+  designBucket?: {name: string; [key: string]: unknown} | null
+  productBucket?: {name: string; [key: string]: unknown} | null
+  listingBucket?: {name: string; [key: string]: unknown} | null
 }
 
 export interface Bucket {

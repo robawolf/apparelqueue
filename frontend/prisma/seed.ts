@@ -102,8 +102,8 @@ async function main() {
 
     if (!existingUser) {
       // Use BetterAuth's password hashing (bcrypt-compatible via better-auth)
-      const {hash} = await import('better-auth/crypto')
-      const hashedPassword = await hash(adminPassword)
+      const {hashPassword} = await import('better-auth/crypto')
+      const hashedPassword = await hashPassword(adminPassword)
       const userId = crypto.randomUUID()
 
       await prisma.user.create({

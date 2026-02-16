@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const variants = await getCatalogVariants(catalogId)
+    const variants = await getCatalogVariants(Number(catalogId))
     return NextResponse.json(variants)
   } catch (error) {
     console.error('Printful variants error:', error)

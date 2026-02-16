@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const printfiles = await getProductPrintfiles(catalogId)
+    const printfiles = await getProductPrintfiles(Number(catalogId))
     return NextResponse.json(printfiles)
   } catch (error) {
     console.error('Printful printfiles error:', error)

@@ -86,7 +86,7 @@ export async function generateMockup(
  * Upload an image to fal.ai storage
  */
 export async function uploadImage(buffer: Buffer): Promise<string> {
-  const blob = new Blob([buffer])
+  const blob = new Blob([new Uint8Array(buffer)])
   const url = await fal.storage.upload(blob)
   return url
 }
