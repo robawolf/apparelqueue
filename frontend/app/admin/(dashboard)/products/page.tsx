@@ -1,5 +1,6 @@
 import {prisma} from '@/lib/db'
 import StageQueue from '@/app/components/admin/StageQueue'
+import ProductCard from '@/app/components/admin/ProductCard'
 
 export default async function ProductsPage({
   searchParams,
@@ -14,13 +15,14 @@ export default async function ProductsPage({
   if (status !== 'all') where.status = status
   if (bucketId) where.productBucketId = bucketId
 
-  const [ideas, buckets] = await Promise.all([
+  const [ideas, buckets, listingBuckets] = await Promise.all([
     prisma.idea.findMany({
       where,
       include: {category: true, productBucket: true},
       orderBy: {createdAt: 'desc'},
     }),
     prisma.bucket.findMany({where: {stage: 'product', isActive: true}, orderBy: {sortOrder: 'asc'}}),
+    prisma.bucket.findMany({where: {stage: 'listing', isActive: true}, orderBy: {sortOrder: 'asc'}}),
   ])
 
   return (
@@ -31,6 +33,9 @@ export default async function ProductsPage({
       buckets={buckets}
       currentStatus={status}
       currentBucketId={bucketId}
+      renderCard={(idea, onAction) => (
+        <ProductCard idea={idea} listingBuckets={listingBuckets} onAction={onAction} />
+      )}
     />
   )
 }
