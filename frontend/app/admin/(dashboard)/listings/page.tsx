@@ -1,5 +1,6 @@
 import {prisma} from '@/lib/db'
 import StageQueue from '@/app/components/admin/StageQueue'
+import ListingCard from '@/app/components/admin/ListingCard'
 
 export default async function ListingsPage({
   searchParams,
@@ -31,6 +32,9 @@ export default async function ListingsPage({
       buckets={buckets}
       currentStatus={status}
       currentBucketId={bucketId}
+      renderCard={(idea, onAction) => (
+        <ListingCard idea={idea} onAction={onAction} />
+      )}
     />
   )
 }

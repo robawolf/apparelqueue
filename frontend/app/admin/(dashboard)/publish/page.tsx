@@ -1,5 +1,6 @@
 import {prisma} from '@/lib/db'
 import StageQueue from '@/app/components/admin/StageQueue'
+import PublishCard from '@/app/components/admin/PublishCard'
 
 export default async function PublishPage({
   searchParams,
@@ -31,6 +32,9 @@ export default async function PublishPage({
       ideas={ideas}
       buckets={[]}
       currentStatus={status}
+      renderCard={(idea, onAction) => (
+        <PublishCard idea={idea} onAction={onAction} />
+      )}
     />
   )
 }
