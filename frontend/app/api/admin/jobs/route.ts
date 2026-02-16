@@ -1,36 +1,23 @@
 import {NextResponse} from 'next/server'
-import {draftMode} from 'next/headers'
 
-// Static job definitions (Inngest functions defined in /lib/inngest/functions/)
 const JOBS = [
-  {name: 'discover-products', schedule: '0 */6 * * *', enabled: true},
-  {name: 'scrape-product', schedule: '0 * * * *', enabled: true},
-  {name: 'create-post-draft', schedule: '0 */2 * * *', enabled: true},
-  {name: 'generate-post-content', schedule: null, enabled: true}, // Triggered by create-post-draft
-  {name: 'enhance-post', schedule: null, enabled: true}, // Triggered by generate-post-content
-  {name: 'generate-images', schedule: null, enabled: false},
+  {name: 'generate-ideas', schedule: null, enabled: true, description: 'AI-generate batch of phrase options'},
+  {name: 'create-design', schedule: null, enabled: true, description: 'Generate concept art and print-ready design'},
+  {name: 'configure-product', schedule: null, enabled: true, description: 'AI-suggest product configurations'},
+  {name: 'configure-listing', schedule: null, enabled: true, description: 'AI-generate listing copy options'},
+  {name: 'create-printful-product', schedule: null, enabled: true, description: 'Create product on Printful'},
+  {name: 'publish-to-shopify', schedule: null, enabled: true, description: 'Sync to Shopify after Printful creation'},
+  {name: 'refine-idea', schedule: null, enabled: true, description: 'AI-regenerate at any stage with revision guidance'},
+  {name: 'analyze-categories', schedule: '0 0 * * *', enabled: true, description: 'Analyze category gaps and priorities'},
 ]
 
-/**
- * API route to list all automation jobs
- * GET /api/admin/jobs
- *
- * Jobs are now Inngest functions. This returns static metadata.
- * For detailed run status, use the Inngest dashboard.
- */
 export async function GET() {
-  const {isEnabled} = await draftMode()
-  if (!isEnabled) {
-    return NextResponse.json({error: 'Unauthorized'}, {status: 401})
-  }
-
   return NextResponse.json({
     available: true,
     jobs: JOBS.map((job) => ({
       ...job,
-      running: false, // Inngest handles concurrent execution
+      running: false,
     })),
-    // Link to Inngest dashboard for detailed monitoring
     dashboardUrl: 'https://app.inngest.com',
   })
 }
