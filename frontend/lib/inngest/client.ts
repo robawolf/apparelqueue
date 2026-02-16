@@ -1,6 +1,7 @@
 import {Inngest} from 'inngest'
+import type {Events} from './events'
 
-// Create Inngest client with app ID
 export const inngest = new Inngest({
-  id: 'thingsfor',
+  id: 'product-idea-queue',
+  schemas: new Map() as unknown as Events,
 })
