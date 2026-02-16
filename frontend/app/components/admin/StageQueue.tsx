@@ -4,19 +4,23 @@ import Link from 'next/link'
 import {useRouter} from 'next/navigation'
 import {useState} from 'react'
 
-interface Idea {
+export interface Idea {
   id: string
   phrase: string
   phraseExplanation?: string | null
   graphicDescription?: string | null
   graphicStyle?: string | null
   mockupImageUrl?: string | null
+  canvaDesignId?: string | null
+  designFileUrl?: string | null
+  variants?: string | null
   apparelType?: string | null
   productTitle?: string | null
   productDescription?: string | null
   stage: string
   status: string
   createdAt: Date
+  revisionHistory?: Array<{stage: string; type: 'forward' | 'revision'; notes: string; timestamp: string}>
   category?: {name: string} | null
   phraseBucket?: {name: string} | null
   designBucket?: {name: string} | null
@@ -24,11 +28,13 @@ interface Idea {
   listingBucket?: {name: string} | null
 }
 
-interface Bucket {
+export interface Bucket {
   id: string
   name: string
   stage: string
 }
+
+export type ActionHandler = (ideaId: string, action: string, body?: Record<string, unknown>) => Promise<void>
 
 interface StageQueueProps {
   stage: string
@@ -38,6 +44,7 @@ interface StageQueueProps {
   currentStatus: string
   currentBucketId?: string
   showGenerateButton?: boolean
+  renderCard?: (idea: Idea, onAction: ActionHandler) => React.ReactNode
 }
 
 const STATUS_TABS = ['all', 'pending', 'approved', 'rejected', 'refining', 'processing']
@@ -50,6 +57,7 @@ export default function StageQueue({
   currentStatus,
   currentBucketId,
   showGenerateButton,
+  renderCard,
 }: StageQueueProps) {
   const router = useRouter()
   const [generating, setGenerating] = useState(false)
@@ -158,15 +166,19 @@ export default function StageQueue({
         </div>
       ) : (
         <div className="space-y-4">
-          {ideas.map((idea) => (
-            <IdeaCard
-              key={idea.id}
-              idea={idea}
-              stage={stage}
-              buckets={buckets}
-              onAction={handleAction}
-            />
-          ))}
+          {ideas.map((idea) =>
+            renderCard ? (
+              <div key={idea.id}>{renderCard(idea, handleAction)}</div>
+            ) : (
+              <IdeaCard
+                key={idea.id}
+                idea={idea}
+                stage={stage}
+                buckets={buckets}
+                onAction={handleAction}
+              />
+            )
+          )}
         </div>
       )}
     </div>
