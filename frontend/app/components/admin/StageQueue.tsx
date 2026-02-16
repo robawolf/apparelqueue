@@ -17,6 +17,17 @@ export interface Idea {
   apparelType?: string | null
   productTitle?: string | null
   productDescription?: string | null
+  printfulCatalogId?: number | null
+  printPlacements?: string | null
+  colorScheme?: string | null
+  productTags?: string | null
+  shopifyCollectionId?: string | null
+  printfulProductId?: string | null
+  printfulExternalId?: string | null
+  shopifyProductId?: string | null
+  shopifyProductUrl?: string | null
+  publishedAt?: string | null
+  aiModel?: string | null
   stage: string
   status: string
   createdAt: Date
