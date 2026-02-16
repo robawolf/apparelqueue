@@ -2,14 +2,13 @@ import './globals.css'
 
 import type {Metadata} from 'next'
 import {Inter} from 'next/font/google'
-import {Toaster} from 'sonner'
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | Product Idea Queue',
-    default: 'Product Idea Queue',
+    template: '%s | Store',
+    default: 'Store',
   },
-  description: 'Multi-stage product idea approval queue',
+  description: 'Shop our collection of culturally authentic apparel.',
 }
 
 const inter = Inter({
@@ -20,11 +19,8 @@ const inter = Inter({
 
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
-    <html lang="en" className={`${inter.variable} bg-white text-black`}>
-      <body>
-        <Toaster />
-        {children}
-      </body>
+    <html lang="en" className={inter.variable}>
+      <body className="antialiased">{children}</body>
     </html>
   )
 }

@@ -1,34 +1,20 @@
 {
-  "name": "travel",
-  "description": "Next.js + Sanity: A Powerful Website Starter with Real-time Visual Editing",
-  "keywords": [
-    "Sanity",
-    "Next.js",
-    "Headless CMS",
-    "Visual Editing",
-    "Live Content API (LCAPI)",
-    "Real-time"
-  ],
-  "homepage": "https://github.com/sanity-io/sanity-template-nextjs-clean#readme",
-  "bugs": {
-    "url": "https://github.com/sanity-io/sanity-template-nextjs-clean/issues"
-  },
+  "name": "product-idea-queue",
+  "description": "Multi-stage product idea approval queue with headless Shopify storefront",
+  "private": true,
   "workspaces": [
-    "studio",
-    "frontend"
+    "frontend",
+    "storefront"
   ],
   "scripts": {
-    "dev": "npm-run-all --parallel --print-label dev:next dev:studio",
-    "dev:next": "npm run dev --workspace=frontend",
-    "dev:studio": "npm run dev --workspace=studio",
+    "dev": "npm-run-all --parallel --print-label dev:queue dev:storefront",
+    "dev:queue": "npm run dev --workspace=frontend",
+    "dev:storefront": "npm run dev --workspace=storefront",
     "format": "prettier --cache --write .",
-    "import-sample-data": "cd studio && sanity dataset import sample-data.tar.gz --replace",
     "lint": "npm run lint --workspace=frontend",
     "type-check": "npm run type-check --workspaces"
   },
-  "prettier": "@sanity/prettier-config",
   "devDependencies": {
-    "@sanity/prettier-config": "^2.0.1",
     "npm-run-all2": "^5.0.2",
     "prettier": "^3.6.2"
   }
