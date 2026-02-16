@@ -1,7 +1,5 @@
 @import 'tailwindcss';
 
-@plugin "@tailwindcss/typography";
-
 @utility container {
   margin: 0 auto;
   padding: 0 2rem;
