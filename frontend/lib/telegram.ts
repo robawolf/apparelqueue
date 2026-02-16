@@ -16,22 +16,6 @@ export interface TelegramMessageOptions {
   disableWebPagePreview?: boolean
 }
 
-export interface SendDraftNotificationParams {
-  postTitle: string
-  postSlug: string
-  productName?: string
-  asin?: string
-}
-
-export interface SendProductDiscoveryParams {
-  savedCount: number
-  targetCategory: string
-  topProduct?: {
-    name: string
-    score: number
-  }
-}
-
 /**
  * Send a message to Telegram
  */
@@ -53,8 +37,6 @@ export async function sendTelegramMessage(
     disable_web_page_preview: options.disableWebPagePreview ?? false,
   }
 
-  logger.debug({chatId: TELEGRAM_CHAT_ID}, 'Sending Telegram message')
-
   try {
     const response = await fetch(url, {
       method: 'POST',
@@ -67,7 +49,6 @@ export async function sendTelegramMessage(
       throw new Error(`Telegram API error: ${response.status} - ${error}`)
     }
 
-    logger.debug({}, 'Telegram message sent successfully')
     return true
   } catch (error) {
     logger.error({error}, 'Failed to send Telegram message')
@@ -80,38 +61,48 @@ function escapeHtml(text: string): string {
 }
 
 /**
- * Send notification for a new draft post
+ * Send notification when ideas are ready for review at a stage
  */
-export async function sendDraftPostNotification(
-  params: SendDraftNotificationParams,
+export async function sendStageNotification(
+  idea: {phrase: string; stage: string; id: string},
+  count?: number,
 ): Promise<boolean> {
-  const {postTitle, postSlug, productName, asin} = params
+  const adminUrl = `${PUBLIC_SITE_URL}/admin/${idea.stage}s`
 
-  const postUrl = `${PUBLIC_SITE_URL}/posts/${postSlug}`
+  const stageLabels: Record<string, string> = {
+    phrase: 'Phrases',
+    design: 'Designs',
+    product: 'Products',
+    listing: 'Listings',
+    publish: 'Publish',
+  }
 
-  let message = `<u>📝 Draft Post Ready</u>\n\n`
-  message += `<b>${escapeHtml(postTitle)}</b>\n`
+  const stageLabel = stageLabels[idea.stage] || idea.stage
 
-  message += `\n<a href="${postUrl}">Review in Admin</a>`
+  let message = `<b>${stageLabel} Ready for Review</b>\n\n`
+  if (count && count > 1) {
+    message += `${count} new items in the ${stageLabel} queue\n`
+  }
+  message += `<i>${escapeHtml(idea.phrase)}</i>\n`
+  message += `\n<a href="${adminUrl}">Review in Admin</a>`
 
   return sendTelegramMessage(message, {parseMode: 'HTML'})
 }
 
 /**
- * Send notification for newly discovered products
+ * Send notification when a product is published to Shopify
  */
-export async function sendProductDiscoveryNotification(
-  params: SendProductDiscoveryParams,
-): Promise<boolean> {
-  const {savedCount, targetCategory, topProduct} = params
-  const adminUrl = `${PUBLIC_SITE_URL}/admin/products`
-  
+export async function sendPublishedNotification(idea: {
+  phrase: string
+  shopifyProductUrl?: string | null
+  productTitle?: string | null
+}): Promise<boolean> {
+  let message = `<b>Product Published!</b>\n\n`
+  message += `<i>${escapeHtml(idea.productTitle || idea.phrase)}</i>\n`
 
-  let message = `<u>🆕 New Products Discovered</u>\n\n`
-  if (topProduct) {
-    message += `<b>${escapeHtml(topProduct.name)}</b>\n\n`
+  if (idea.shopifyProductUrl) {
+    message += `\n<a href="${idea.shopifyProductUrl}">View on Store</a>`
   }
-  message += `<a href="${adminUrl}">Review in Admin</a>\n`
 
   return sendTelegramMessage(message, {parseMode: 'HTML'})
 }
