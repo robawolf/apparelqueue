@@ -1,0 +1,181 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── BetterAuth tables ───
+
+model User {
+  id            String    @id
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// ─── Brand configuration (singleton — one record per deployment) ───
+
+model BrandConfig {
+  id                    String   @id @default("default")
+  name                  String
+
+  verbiageTheme         String?  @db.Text
+  verbiagePromptContext String?  @db.Text
+  toneGuidelines        String?  @db.Text
+
+  graphicThemes         String?  @db.Text
+  canvaTemplateIds      String?  @db.Text
+
+  defaultApparelTypes   String   @default("[\"t-shirt\",\"hoodie\",\"tank-top\"]") @db.Text
+  defaultMarkupPercent  Int      @default(50)
+
+  aiModelPreference     String?
+  ideaBatchSize         Int      @default(5)
+
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+// ─── Buckets (persistent creative directives per pipeline stage) ───
+
+model Bucket {
+  id        String   @id @default(uuid())
+  stage     String
+  name      String
+  prompt    String   @db.Text
+  isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  phraseIdeas  Idea[] @relation("PhraseBucket")
+  designIdeas  Idea[] @relation("DesignBucket")
+  productIdeas Idea[] @relation("ProductBucket")
+  listingIdeas Idea[] @relation("ListingBucket")
+
+  @@index([stage, isActive])
+}
+
+// ─── Multi-stage idea pipeline ───
+
+model Idea {
+  id                  String   @id @default(uuid())
+
+  stage               String   @default("phrase")
+  status              String   @default("pending")
+
+  phraseBucketId      String?
+  phraseBucket        Bucket?  @relation("PhraseBucket", fields: [phraseBucketId], references: [id])
+  designBucketId      String?
+  designBucket        Bucket?  @relation("DesignBucket", fields: [designBucketId], references: [id])
+  productBucketId     String?
+  productBucket       Bucket?  @relation("ProductBucket", fields: [productBucketId], references: [id])
+  listingBucketId     String?
+  listingBucket       Bucket?  @relation("ListingBucket", fields: [listingBucketId], references: [id])
+
+  revisionHistory     String?  @db.Text
+
+  // Stage 1 — Phrase
+  phrase              String
+  phraseExplanation   String?  @db.Text
+  graphicDescription  String?  @db.Text
+  graphicStyle        String?
+  aiModel             String?
+  aiPrompt            String?  @db.Text
+
+  // Stage 2 — Design
+  mockupImageUrl      String?
+  canvaDesignId       String?
+  designFileUrl       String?
+
+  // Stage 3 — Product
+  apparelType         String?
+  printfulCatalogId   Int?
+  variants            String?  @db.Text
+  printPlacements     String?  @db.Text
+  colorScheme         String?
+
+  // Stage 4 — Listing
+  productTitle        String?
+  productDescription  String?  @db.Text
+  productTags         String?  @db.Text
+  shopifyCollectionId String?
+
+  // Stage 5 — Fulfillment
+  printfulProductId   String?
+  printfulExternalId  String?
+  shopifyProductId    String?
+  shopifyProductUrl   String?
+  publishedAt         DateTime?
+
+  category            Category? @relation(fields: [categoryId], references: [id])
+  categoryId          String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([stage, status])
+  @@index([categoryId])
+  @@index([phraseBucketId])
+  @@index([designBucketId])
+  @@index([productBucketId])
+  @@index([listingBucketId])
+}
+
+model Category {
+  id            String   @id @default(uuid())
+  name          String
+  slug          String   @unique
+  description   String?  @db.Text
+  promptContext String?  @db.Text
+  targetCount   Int      @default(10)
+  isActive      Boolean  @default(true)
+  ideas         Idea[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
